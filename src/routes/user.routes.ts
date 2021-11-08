@@ -1,3 +1,4 @@
+import { validate } from 'class-validator';
 import { Router } from 'express';
 import { getRepository, getCustomRepository } from 'typeorm';
 import User from '../models/User';
@@ -8,7 +9,22 @@ const userRouter = Router();
 userRouter.post('/', async (request, response) => {
   try {
     const repo = getRepository(User);
-    const res = await repo.save(request.body);
+    const {code, name, email} = request.body;
+
+    const user = repo.create({
+      code,
+      name,
+      email,
+    });
+
+    const errors = await validate(user);
+
+    if(errors.length == 0){
+      const res = await repo.save(user)
+      return response.status(201).json(res);
+    }
+    return response.status(400).json(errors.map(v => v.constraints))
+
     return response.status(201).json(res);
   } catch (err) {
     console.log('err.message :>> ', err.message);

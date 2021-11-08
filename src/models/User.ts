@@ -1,3 +1,4 @@
+import { IsEmail, MaxLength, min, MinLength } from 'class-validator';
 import {
   Entity,
   Column,
@@ -25,14 +26,15 @@ export default class User {
 
   @Column({
     length: 100,
-    unique: true,
   })
+  @MaxLength(50, { message:'Nome deve ter menos de 50 caracteres'})
+  @MinLength(2, { message:'Nome deve ter ao menos duas letras'})
   name: string;
 
   @Column({
     length: 100,
-    unique: true,
   })
+  @IsEmail()
   email: string;
 
 }
