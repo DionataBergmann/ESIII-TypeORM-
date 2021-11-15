@@ -1,5 +1,6 @@
 {
   "type": "postgres",
+  "cache": { "duration": 20000},
   "host": "localhost",
   "port": 5433,
   "username": "postgres",

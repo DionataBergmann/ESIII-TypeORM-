@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getRepository, getCustomRepository } from 'typeorm';
+import { getRepository, getCustomRepository, getConnection } from 'typeorm';
 import Product from '../models/Product';
 import ProductRepository from '../repositories/ProductRepository';
 
@@ -9,6 +9,7 @@ productRouter.post('/', async (request, response) => {
   try {
     const repo = getRepository(Product);
     const res = await repo.save(request.body);
+    await getConnection().queryResultCache?.remove(['listProduct'])
     return response.status(201).json(res);
   } catch (err) {
     console.log('err.message :>> ', err.message);
@@ -16,7 +17,7 @@ productRouter.post('/', async (request, response) => {
 });
 
 productRouter.get('/', async (request, response) => {
-  response.json(await getRepository(Product).find());
+  response.json(await getRepository(Product).find({cache:{id:'listProduct', milliseconds: 10000}}));
 });
 
 productRouter.get('/:description', async (request, response) => {

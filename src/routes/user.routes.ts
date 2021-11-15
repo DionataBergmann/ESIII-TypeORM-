@@ -1,6 +1,6 @@
 import { validate } from 'class-validator';
 import { Router } from 'express';
-import { getRepository, getCustomRepository } from 'typeorm';
+import { getRepository, getCustomRepository, getConnection } from 'typeorm';
 import User from '../models/User';
 import UserRepository from '../repositories/UserRepository';
 
@@ -10,6 +10,7 @@ userRouter.post('/', async (request, response) => {
   try {
     const repo = getRepository(User);
     const {code, name, email} = request.body;
+    await getConnection().queryResultCache?.remove(['listUser'])
 
     const user = repo.create({
       code,
@@ -32,7 +33,7 @@ userRouter.post('/', async (request, response) => {
 });
 
 userRouter.get('/', async (request, response) => {
-  response.json(await getRepository(User).find());
+  response.json(await getRepository(User).find({cache:{id:'listUser', milliseconds: 10000}}));
 });
 
 userRouter.get('/:name', async (request, response) => {
